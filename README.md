@@ -121,7 +121,7 @@ If you find any problem, contact me.
 📧 Support: **mugrabifarah@gmail.com**
 
 
-### Examples
+### Example
 
-![Example 1](./example.png)
+<img src="example.png" width="100%">
 
