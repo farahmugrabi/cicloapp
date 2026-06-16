@@ -121,8 +121,11 @@ If you find any problem, contact me.
 
 📧 Support: **mugrabifarah@gmail.com**
 
-## Examples
 
-![Example 1](example.png)
+### Calendar view
 
-![Example 2](example2.png)
+![Calendar](example.png)
+
+### Mobile view
+
+![Mobile](example2.png)
