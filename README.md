@@ -4,8 +4,6 @@ Simple Shiny app to register period dates and show predictions.
 Your data is private because it is saved in your own Google Sheet.  
 You need R Studio and a Shiny account.
 
-## 🔗 Step 1 — Create Google Form + Sheet
-
 ## 📄 Step 1 — Create Google Sheet and Google Form
 
 First create a Google Sheet.
