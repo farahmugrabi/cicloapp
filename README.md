@@ -1,4 +1,4 @@
-📅 Menstrual Calendar App
+## 📅 Women's Calendar App
 
 Simple Shiny app to register period dates and show predictions.
 Your data is private because it is saved in your own Google Sheet.  
