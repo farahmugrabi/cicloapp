@@ -124,5 +124,6 @@ If you find any problem, contact me.
 
 ### Examples
 
-<img src="example.png" width="45%">
-<img src="example2.png" width="45%">
+![Example 1](./example.png)
+
+![Example 2](./example2.png)
