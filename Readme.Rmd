@@ -122,10 +122,7 @@ If you find any problem, contact me.
 📧 Support: **mugrabifarah@gmail.com**
 
 
-### Calendar view
+### Examples
 
-![Calendar](example.png)
-
-### Mobile view
-
-![Mobile](example2.png)
+<img src="example.png" width="45%">
+<img src="example2.png" width="45%">
