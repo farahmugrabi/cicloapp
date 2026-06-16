@@ -125,4 +125,3 @@ If you find any problem, contact me.
 
 ![Example 1](./example.png)
 
-![Example 2](./example2.png)
