@@ -107,7 +107,6 @@ shiny::runApp("PASTE_FOLDER_LOCATION_HERE/Cicloapp") #to run localy
 where for example PASTE_FOLDER_LOCATION_HERE ="C:/Users/userX/Desktop/Cicloapp/Cicloapp"
 
 ## Step 7 — Enjoy
-## Step 7 — Enjoy
 
 You will get a link to your app, for example:
 
