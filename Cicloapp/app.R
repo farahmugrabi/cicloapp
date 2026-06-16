@@ -13,7 +13,7 @@ ACTION_ENTRY <- "entry.222222"
 
 APP_PASSWORD <- "examplepassword"
 
-#Appp ##########################################################################
+#Appp --------------------
 base_cols <- c(
   "#C969A1FF", "#CE4441FF", "#EE8577FF",
   "#EB7926FF", "#FFBB44FF", "#859B6CFF",
@@ -57,39 +57,44 @@ read_data <- function() {
 }
 
 ui <- fluidPage(
-  titlePanel("Menstrual Calendar"),
-  
-  sidebarLayout(
-    sidebarPanel(
-      dateInput(
-        "date",
-        "First day of period",
-        value = Sys.Date(),
-        format = "dd/mm/yyyy",
-        language = "en"
-      ),
-      actionButton("save", "Save period"),
-      br(), br(),
-      selectInput("delete_date", "Delete period", choices = NULL),
-      actionButton("delete", "Delete selected period"),
-      br(), br(),
-      downloadButton("export", "Export results"),
-      br(), br(),
-      actionButton("previous_month", "< Previous month"),
-      actionButton("next_month", "Next month")
-    ),
-    
-    mainPanel(
-      passwordInput("password", "Password"),
-      uiOutput("secure_app")
-    )
-  )
+  titlePanel("Women Calendar"),
+  passwordInput("password", "Password"),
+  uiOutput("app_ui")
 )
 
 server <- function(input, output, session) {
   
   current_month <- reactiveVal(floor_date(Sys.Date(), "month"))
   refresh <- reactiveVal(0)
+  
+  output$app_ui <- renderUI({
+    req(input$password == APP_PASSWORD)
+    
+    sidebarLayout(
+      sidebarPanel(
+        dateInput(
+          "date",
+          "First day of period",
+          value = Sys.Date(),
+          format = "dd/mm/yyyy",
+          language = "en"
+        ),
+        actionButton("save", "Save period"),
+        br(), br(),
+        selectInput("delete_date", "Delete period", choices = NULL),
+        actionButton("delete", "Delete selected period"),
+        br(), br(),
+        downloadButton("export", "Export results"),
+        br(), br(),
+        actionButton("previous_month", "< Previous month"),
+        actionButton("next_month", "Next month")
+      ),
+      
+      mainPanel(
+        uiOutput("secure_app")
+      )
+    )
+  })
   
   observeEvent(input$previous_month, {
     current_month(current_month() %m-% months(1))
@@ -100,6 +105,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$save, {
+    req(input$password == APP_PASSWORD)
+    
     d <- as.Date(input$date)
     
     resp <- httr::POST(
@@ -118,6 +125,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$delete, {
+    req(input$password == APP_PASSWORD)
     req(input$delete_date)
     d <- as.Date(input$delete_date)
     
@@ -141,15 +149,33 @@ server <- function(input, output, session) {
     read_data()
   })
   
+  # observe({
+  #   data <- history()
+  #   choices <- data$date
+  #   names(choices) <- format(data$date, "%d/%m/%Y")
+  #   updateSelectInput(session, "delete_date", choices = choices)
+  # })
+  
   observe({
+    req(input$password == APP_PASSWORD)
+    
     data <- history()
-    choices <- data$date
+    
+    choices <- as.character(data$date)
     names(choices) <- format(data$date, "%d/%m/%Y")
-    updateSelectInput(session, "delete_date", choices = choices)
+    
+    updateSelectInput(
+      session,
+      "delete_date",
+      choices = choices,
+      selected = ifelse(length(choices) > 0, choices[1], "")
+    )
   })
   
   events <- reactive({
-    data <- history()
+    data <- history() %>%
+      arrange(date)
+    
     ev <- data.frame(date = as.Date(character()), type = character())
     
     if (nrow(data) >= 1) {
@@ -166,12 +192,19 @@ server <- function(input, output, session) {
         predicted_start <- last_date + days(cycle_length * i)
         
         previous_cycle_start <- predicted_start - days(cycle_length)
-        fertile <- previous_cycle_start + days(round(cycle_length / 2))
+        fertile_center <- previous_cycle_start + days(round(cycle_length / 2))
+        
+        fertile_window <- seq(
+          fertile_center - days(2),
+          fertile_center + days(2),
+          by = "day"
+        )
         
         ev <- rbind(
           ev,
           data.frame(date = predicted_start, type = "predicted"),
-          data.frame(date = fertile, type = "fertile")
+          data.frame(date = fertile_center, type = "fertile"),
+          data.frame(date = fertile_window, type = "fertile_window")
         )
       }
     }
@@ -212,6 +245,12 @@ server <- function(input, output, session) {
         color <- base_cols[3]
         text_color <- "white"
         text <- "🩸"
+      }
+      
+      if ("fertile_window" %in% type) {
+        color <- "#D8EEF1"
+        text_color <- "white"
+        text <- ""
       }
       
       if ("fertile" %in% type) {
@@ -281,7 +320,7 @@ server <- function(input, output, session) {
           ),
           br(),
           p(
-            "Estimated fertile period is calculated as half of your average registered cycle length.",
+            "Estimated fertile period is calculated as half of your average registered cycle length. Add at least two registers to see the estimations.",
             style = "font-size:12px;color:black;max-width:900px;"
           )
         )
@@ -295,6 +334,8 @@ server <- function(input, output, session) {
     },
     
     content = function(file) {
+      req(input$password == APP_PASSWORD)
+      
       data <- history()
       text <- c("# First day", "")
       
